@@ -35,11 +35,15 @@ function fish_prompt
 
     if test "$PWD" = ~
         set base "$color3~"
-
+        set glyph
+        
     else if pwd_is_home
         set dir
+
     else
-        if test "$PWD" != /
+        if test "$PWD" = /
+            set glyph
+        else
             set dir "/"
         end
 
