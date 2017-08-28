@@ -22,13 +22,8 @@ function fish_right_prompt
     end
 
     if test ! -z "$status_code"
-        echo -sn "$color$status_code$color_normal "
+        echo -sn "$color($status_code)$color_normal "
     end
 
-    if test "$CMD_DURATION" -gt 250
-        set -l duration (echo $CMD_DURATION | humanize_duration)
-        echo -sn "$color$duration$color_normal "
-    else
-        echo -sn "$color$VIRTUAL_ENV$color_normal "
-    end
+    echo -sn "$color$VIRTUAL_ENV$color_normal "
 end
