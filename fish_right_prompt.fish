@@ -17,10 +17,6 @@ function fish_right_prompt
         set color "$color_error"
     end
 
-    if set -l job_id (last_job_id)
-        echo -sn "$color%$job_id$color_normal "
-    end
-
     if test ! -z "$status_code"
         echo -sn "$color($status_code)$color_normal "
     end
