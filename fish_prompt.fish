@@ -1,113 +1,78 @@
 function fish_prompt
-    set -l status_copy $status
-    set -l pwd_info (pwd_info "/")
-    set -l dir
-    set -l base
-    set -l color (set_color white)
-    set -l color2 (set_color normal)
-    set -l color3 (set_color $fish_color_command)
-    set -l color_error (set_color $fish_color_error)
-    set -l color_normal "$color2"
+    set status_copy $status
+    set color_white (set_color white)
+    set color_command (set_color $fish_color_command)
+    set color_error (set_color $fish_color_error)
+    set color_normal (set_color normal)
+    set color_reset (set_color normal)
+    set color_git_root (set_color cyan)
+    set color_git_dirty 'todo'
+    set color_git_staged 'todo'
 
-    echo -sn " "
+    # if test $status_copy != 0
+    #     set color_white $color_error
+    #     set color_normal $color_error
+    #     if not git_is_repo
+    #         set color_command $color_error$color_command
+    #     end
+    # end
 
-    if test "$status_copy" -ne 0
-        set color "$color_error"
-        set color2 "$color_error"
-        set color3 "$color_error"
-    end
-
-    set -l glyph " $color2\$$color_normal"
-
-    if test 0 -eq (id -u "$USER")
-        echo -sn "$color_error# $color_normal"
-    end
-
-    if test ! -z "$SSH_CLIENT"
-        set -l color "$color2"
-
-        if test 0 -eq (id -u "$USER")
-            set color "$color_error"
-        end
-
-        echo -sn "$color"(host_info "user@")"$color_normal"
-    end
-
-    if test "$PWD" = ~
-        set base "$color3~"
-        set glyph
-        
-    else if pwd_is_home
-        set dir
-
-    else
-        if test "$PWD" = /
-            set glyph
+    if git_is_repo
+        set git_root "$color_reset$color_git_root"(basename (git_repository_root))"$color_normal"
+        set git_root_idx (count (string split / (string replace ~ \~ (git_repository_root))))
+        if git_is_dirty
+            set glyph " $color_error\$$color_reset"
+        else if git_is_staged
+            set glyph ' '(set_color green)"\$$color_reset"
         else
-            set dir "/"
+            set glyph " $color_normal\$"
         end
-
-        set base "$color_error/"
+        set ahead (git_ahead ' +' ' -' ' ±')
+        set glyph "$color_reset$glyph$ahead$color_reset"
     end
 
-    if test ! -z "$pwd_info[1]"
-        set base "$pwd_info[1]"
+    if test (id -u "$USER") = 0
+        set root "$color_error#$color_normal "
     end
 
-    if test ! -z "$pwd_info[2]"
-        set dir "$dir$pwd_info[2]/"
+    set pwd (string replace ~ \~ $PWD)
+    if test $PWD = ~
+        if set -q git_root
+            set pwd $PWD
+        else
+            set prompt "$color_command~$color_normal"
+    end
+    else if test $PWD = /
+        set prompt "$color_command/$color_normal"
+        if set -q git_root
+            set prompt $color_git_root$prompt
+        end
     end
 
-    echo -sn "$color2$dir$color$base$color_normal"
+    if not set -q prompt
+        if not set -q glyph
+            set glyph ' $'
+        end
+        set paths (string split / $pwd | sed 's|\(\.\?.\{1,1\}\).*|\1|')
 
-    if test ! -z "$pwd_info[3]"
-        echo -sn "$color2/$pwd_info[3]"
-    end
+        set color_init $color_command
 
-    if set branch_name (git_branch_name)
-        set -l git_color
-        set -l git_glyph \$
-
-        if git_is_staged
-            set git_color (set_color green)
-
-            if git_is_dirty
-                set git_glyph "$git_color$git_glyph$color_error$git_glyph"
-                set git_color "$color_error"
+        if set -q git_root_idx
+            if test $git_root_idx = 0
+                set color_init $color_git_root$color_init
+            else
+                set paths[$git_root_idx] $git_root
             end
 
-        else if git_is_dirty
-            set git_color "$color_error"
-
-        else if git_is_touched
-            set git_color "$color_error"
-        else
-            set git_color "$color3"
-        end
-
-        set -l git_ahead (git_ahead " +" " -" " +-")
-
-        if test "$branch_name" = "master"
-            set branch_name
-            if git_is_stashed
-                set branch_name "{}"
+            if test $git_root_idx != (count $paths)
+                set paths[-1] $color_white(basename (pwd))$color_normal
             end
         else
-            set -l left_par "("
-            set -l right_par ")"
-
-            if git_is_stashed
-                set left_par "{"
-                set right_par "}"
-            end
-
-            set branch_name " $git_color$left_par$color2$branch_name$git_color$right_par"
+            set paths[-1] $color_white(basename (pwd))$color_normal
         end
 
-        echo -sn "$branch_name$git_color$git_ahead $git_glyph"
-    else
-        echo -sn "$color$glyph$color_normal"
+        set prompt (string join / $paths | sed "s|^.|$color_init&$color_normal|")
     end
 
-    echo -sn "$color_normal "
+    printf "$color_reset $root$color_normal$prompt$color_reset$glyph $color_reset"
 end
