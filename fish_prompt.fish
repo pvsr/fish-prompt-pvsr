@@ -16,25 +16,27 @@ function fish_prompt
     if git_is_repo
         set -l git_root (git_repository_root)
         if not string match --entire $git_root $PWD > /dev/null
-            # we need to reconcile the virtual PWD, which reflects symlinks, with the actual file
-            set -l suffix (string match --regex $git_root $PWD)
+            # we need to reconcile the virtual PWD, which reflects symlinks, with the actual path
+            set -l suffix (string replace --regex $git_root '' (realpath $PWD))
             set git_root (string replace --regex "(.*)$suffix\$" '$1' $PWD)
         end
 
-        set git_basename "$color_normal$color_git_basename"(basename $git_root)"$color_normal"
+        set git_basename $color_normal$color_git_basename(basename $git_root)$color_normal
         set git_basename_idx (count (string split / (string replace ~ \~ $git_root)))
         if git_is_dirty
-            set color_glyph "$color_red"
+            set color_glyph $color_error
         else if git_is_staged
             set color_glyph (set_color green)
         else
-            set color_glyph "$color_normal"
+            set color_glyph $color_normal
         end
         set ahead (git_ahead ' +' ' -' ' ±')
         set glyph "$color_glyph$default_glyph$ahead"
+
+        # TODO could add more git info
     end
 
-    if test (id -u "$USER") = 0
+    if test (id -u $USER) = 0
         set root "$color_red# "
     end
 
@@ -48,7 +50,7 @@ function fish_prompt
     else if test $PWD = /
         set prompt "$color_command/"
         if set -q git_basename
-            set prompt "$color_git_basename$prompt"
+            set prompt $color_git_basename$prompt
         end
     end
 
@@ -56,25 +58,28 @@ function fish_prompt
         if not set -q glyph
             set glyph $default_glyph
         end
-        set paths (string split / "$pwd" | sed 's|\(\.\?.\{1,1\}\).*|\1|')
+        set paths (string split / $pwd | string replace --regex '^(\.?.).*$' '$1')
 
-        set color_init "$color_command"
+        set color_init $color_command
 
         if set -q git_basename_idx
-            if test "$git_basename_idx" = 0
-                set color_init "$color_git_basename$color_init"
+            if test $git_basename_idx = 0
+                set git_root
             else
-                set paths["$git_basename_idx"] "$git_basename"
+                set paths[$git_basename_idx] $git_basename
             end
 
-            if test "$git_basename_idx" != (count "$paths")
+            if test $git_basename_idx != (count $paths)
                 set paths[-1] $color_normal$color_white(basename (pwd))
             end
         else
             set paths[-1] $color_normal$color_white(basename (pwd))
         end
 
-        set prompt (string join / $paths | sed "s|^.|$color_init&$color_normal|")
+        set prompt (string join / $paths)
+        if set -q git_root
+            set prompt (string replace --regex '^/' "$color_git_basename/$color_normal" $prompt)
+        end
     end
 
     printf " $color_normal$root$color_normal$prompt$color_normal$glyph $color_normal"
