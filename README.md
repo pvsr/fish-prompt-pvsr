@@ -1,35 +1,15 @@
-# Mono
+# fish-prompt-pvsr
 
-Minimal prompt. I removed command duration because I feel it's unnecessary. So
-now it's slightly more minimal.
+My custom fish prompt.
+Originally forked from gabtemp/mono,
+but I removed most of the features because it wasn't ~minimal~ enough for me.
 
 
 ## Install
 
-With [fisherman]
+With [fisher]
 
 ```fish
-fisher pvsr/mono
+fisher pvsr/fish-prompt-pvs
 ```
-
-## Features
-
-* Git
-    * Clean
-    * Dirty / Touched
-    * Staged
-    * Staged + Dirty
-    * Stashed
-    * Unpushed commits (ahead)
-    * Unpulled commits (behind)
-    * Unpulled and unpushed commits (diverged)
-    * Detached HEAD
-    * Branch name
-* $status
-* $VIRTUAL_ENV
-* $status in context
-* Background jobs
-* Superpowers (sudo)
-* Host information
-
-[fisherman]: https://github.com/fisherman/fisherman
+[fisher]: https://github.com/jorgebucaran/fisher
