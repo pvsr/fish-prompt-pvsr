@@ -15,9 +15,11 @@ function fish_prompt
     if which git > /dev/null 2>&1 && git_is_repo
         set vcs git
         set vcs_root (git_repository_root)
+        set vcs_branch (git_branch_name)
     else if which hg > /dev/null 2>&1 && test -d .hg
         set vcs hg
         set vcs_root (hg root)
+        set vcs_branch (hg branch)
     end
 
     if set -q vcs
@@ -33,16 +35,16 @@ function fish_prompt
         set color_glyph $color_normal
 
         if test $vcs = 'git'
-            if {$vcs}_is_dirty
+            if git_is_dirty
                 set color_glyph $color_error
-            else if {$vcs}_is_staged
+            else if git_is_staged
                 set color_glyph (set_color green)
             end
 
-            set ahead ({$vcs}_ahead ' +' ' -' ' ±')
+            set ahead (git_ahead ' +' ' -' ' ±')
         end
 
-        set vcs_branch ' ('(set_color yellow)({$vcs}_branch_name)"$color_normal)"
+        set vcs_branch ' ('(set_color yellow)"$vcs_branch$color_normal)"
 
         set glyph "$vcs_branch$color_glyph$default_glyph$ahead"
 
