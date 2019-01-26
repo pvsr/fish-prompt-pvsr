@@ -4,7 +4,6 @@ function fish_prompt
     set color_command (set_color $fish_color_command)
     set color_error (set_color $fish_color_error)
     set color_normal (set_color normal)
-    set color_red (set_color red)
     set color_git_basename (set_color cyan)
     set default_glyph ' $'
     set error_glyph ' !'
@@ -30,14 +29,17 @@ function fish_prompt
         else
             set color_glyph $color_normal
         end
-        set ahead (git_ahead ' +' ' -' ' ±')
-        set glyph "$color_glyph$default_glyph$ahead"
+
+        set git_branch ' ('(set_color yellow)(git_branch_name)"$color_normal)"
+
+        set -l ahead (git_ahead ' +' ' -' ' ±')
+        set glyph "$git_branch$color_glyph$default_glyph$ahead"
 
         # TODO could add more git info
     end
 
     if test (id -u $USER) = 0
-        set root "$color_red# "
+        set root (set_color red)
     end
 
     set pwd (string replace ~ \~ $PWD)
