@@ -4,7 +4,7 @@ function fish_prompt
     set color_command (set_color $fish_color_command)
     set color_error (set_color $fish_color_error)
     set color_normal (set_color normal)
-    set color_git_basename (set_color cyan)
+    set color_vcs_basename (set_color cyan)
     set default_glyph ' $'
     set error_glyph ' !'
 
@@ -12,28 +12,39 @@ function fish_prompt
         set default_glyph $error_glyph
     end
 
-    if git_is_repo
-        set -l git_root (git_repository_root)
-        if not string match --entire $git_root $PWD > /dev/null
+    if which git > /dev/null 2>&1 && git_is_repo
+        set vcs git
+        set vcs_root (git_repository_root)
+    else if which hg > /dev/null 2>&1 && test -d .hg
+        set vcs hg
+        set vcs_root (hg root)
+    end
+
+    if set -q vcs
+        if not string match --entire $vcs_root $PWD > /dev/null
             # we need to reconcile the virtual PWD, which reflects symlinks, with the actual path
-            set -l suffix (string replace --regex $git_root '' (realpath $PWD))
-            set git_root (string replace --regex "(.*)$suffix\$" '$1' $PWD)
+            set -l suffix (string replace --regex $vcs_root '' (realpath $PWD))
+            set vcs_root (string replace --regex "(.*)$suffix\$" '$1' $PWD)
         end
 
-        set git_basename $color_normal$color_git_basename(basename $git_root)$color_normal
-        set git_basename_idx (count (string split / (string replace ~ \~ $git_root)))
-        if git_is_dirty
-            set color_glyph $color_error
-        else if git_is_staged
-            set color_glyph (set_color green)
-        else
-            set color_glyph $color_normal
+        set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
+        set vcs_basename_idx (count (string split / (string replace ~ \~ $vcs_root)))
+
+        set color_glyph $color_normal
+
+        if test $vcs = 'git'
+            if {$vcs}_is_dirty
+                set color_glyph $color_error
+            else if {$vcs}_is_staged
+                set color_glyph (set_color green)
+            end
+
+            set ahead ({$vcs}_ahead ' +' ' -' ' ±')
         end
 
-        set git_branch ' ('(set_color yellow)(git_branch_name)"$color_normal)"
+        set vcs_branch ' ('(set_color yellow)({$vcs}_branch_name)"$color_normal)"
 
-        set -l ahead (git_ahead ' +' ' -' ' ±')
-        set glyph "$git_branch$color_glyph$default_glyph$ahead"
+        set glyph "$vcs_branch$color_glyph$default_glyph$ahead"
 
         # TODO could add more git info
     end
@@ -44,15 +55,15 @@ function fish_prompt
 
     set pwd (string replace ~ \~ $PWD)
     if test $PWD = ~
-        if set -q git_basename
+        if set -q vcs_basename
             set pwd $PWD
         else
             set prompt "$color_command~"
         end
     else if test $PWD = /
         set prompt "$color_command/"
-        if set -q git_basename
-            set prompt $color_git_basename$prompt
+        if set -q vcs_basename
+            set prompt $color_vcs_basename$prompt
         end
     end
 
@@ -64,14 +75,14 @@ function fish_prompt
 
         set color_init $color_command
 
-        if set -q git_basename_idx
-            if test $git_basename_idx = 0
-                set git_root
+        if set -q vcs_basename_idx
+            if test $vcs_basename_idx = 0
+                set vcs_root
             else
-                set paths[$git_basename_idx] $git_basename
+                set paths[$vcs_basename_idx] $vcs_basename
             end
 
-            if test $git_basename_idx != (count $paths)
+            if test $vcs_basename_idx != (count $paths)
                 set paths[-1] $color_normal$color_white(basename (pwd))
             end
         else
@@ -79,8 +90,8 @@ function fish_prompt
         end
 
         set prompt (string join / $paths)
-        if set -q git_root
-            set prompt (string replace --regex '^/' "$color_git_basename/$color_normal" $prompt)
+        if set -q vcs_root
+            set prompt (string replace --regex '^/' "$color_vcs_basename/$color_normal" $prompt)
         end
     end
 
