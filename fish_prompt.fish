@@ -95,5 +95,9 @@ function fish_prompt
         end
     end
 
-    printf " $color_normal$root$color_normal$prompt$color_normal$glyph $color_normal"
+    if set -q SSH_CLIENT
+        set host '['(hostname -s)'] '
+    end
+
+    printf " $color_normal$host$root$color_normal$prompt$color_normal$glyph $color_normal"
 end
