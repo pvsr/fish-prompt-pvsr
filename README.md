@@ -11,6 +11,6 @@ but I removed most of the features because it wasn't \~minimal\~ enough for me.
 With [fisher]
 
 ```fish
-fisher pvsr/fish-prompt-pvs
+fisher pvsr/fish-prompt-pvsr
 ```
 [fisher]: https://github.com/jorgebucaran/fisher
