@@ -12,7 +12,7 @@ function fish_prompt
         set default_glyph $error_glyph
     end
 
-    if which git > /dev/null 2>&1 && git_is_repo
+    if which git > /dev/null 2>&1 && git_is_repo && not test -d .git/annex
         set vcs git
         set vcs_root (git_repository_root)
         set vcs_branch (git_branch_name)
