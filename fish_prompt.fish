@@ -1,15 +1,14 @@
 function fish_prompt
-    set status_copy $status
+    set last_status $status
     set color_white (set_color white)
     set color_command (set_color $fish_color_command)
     set color_error (set_color $fish_color_error)
-    set color_normal (set_color normal)
+    set color_normal (set_color $fish_color_normal)
     set color_vcs_basename (set_color cyan)
-    set default_glyph ' $'
-    set error_glyph ' !'
+    set prompt_char '$'
 
-    if test $status_copy != 0
-        set default_glyph $error_glyph
+    if test $last_status != 0
+        set prompt_char '!'
     end
 
     if which git > /dev/null 2>&1 && git_is_repo && not test -d .git/annex
@@ -46,7 +45,7 @@ function fish_prompt
 
         set vcs_branch ' ('(set_color yellow)"$vcs_branch$color_normal)"
 
-        set glyph "$vcs_branch$color_glyph$default_glyph$ahead"
+        set glyph "$vcs_branch$color_glyph $prompt_char$ahead"
 
         # TODO could add more git info
     end
@@ -60,10 +59,14 @@ function fish_prompt
         if set -q vcs_basename
             set pwd $PWD
         else
-            set prompt "$color_command~"
+            test $last_status = 0 && set prompt_char "~"
+            set prompt "$color_command$prompt_char"
         end
     else if test $PWD = /
-        set prompt "$color_command/"
+        test $last_status = 0 && set prompt_char "/"
+
+        set prompt "$color_command$prompt_char"
+
         if set -q vcs_basename
             set prompt $color_vcs_basename$prompt
         end
