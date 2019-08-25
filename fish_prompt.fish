@@ -29,7 +29,12 @@ function fish_prompt
         end
 
         set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
-        set vcs_basename_idx (count (string split / (string replace ~ \~ $vcs_root)))
+        if test $vcs_root != ~
+            set vcs_root_abbr (string replace ~ \~ $vcs_root)
+        else
+            set vcs_root_abbr $vcs_root
+        end
+        set vcs_basename_idx (count (string split / $vcs_root_abbr))
 
         set color_glyph $color_normal
 
@@ -56,10 +61,10 @@ function fish_prompt
 
     set pwd (string replace ~ \~ $PWD)
     if test $PWD = ~
+        test $last_status = 0 && set prompt_char "~"
         if set -q vcs_basename
             set pwd $PWD
         else
-            test $last_status = 0 && set prompt_char "~"
             set prompt "$color_command$prompt_char"
         end
     else if test $PWD = /
@@ -74,16 +79,14 @@ function fish_prompt
 
     if not set -q prompt
         if not set -q glyph
-            set glyph $default_glyph
+            set glyph " $prompt_char"
         end
         set paths (string split / $pwd | string replace --regex '^(\.?.).*$' '$1')
 
         set color_init $color_command
 
         if set -q vcs_basename_idx
-            if test $vcs_basename_idx = 0
-                set vcs_root
-            else
+            if test $vcs_basename_idx != 0
                 set paths[$vcs_basename_idx] $vcs_basename
             end
 
@@ -95,7 +98,7 @@ function fish_prompt
         end
 
         set prompt (string join / $paths)
-        if set -q vcs_root
+        if set -q vcs_root && test $vcs_root = "/"
             set prompt (string replace --regex '^/' "$color_vcs_basename/$color_normal" $prompt)
         end
     end
