@@ -11,7 +11,7 @@ function fish_prompt
         set prompt_char '!'
     end
 
-    if which git > /dev/null 2>&1 && git_is_repo && not test -d .git/annex
+    if which git > /dev/null 2>&1 && git_is_repo && not test -d (git_repository_root)/.git/annex
         set vcs git
         set vcs_root (git_repository_root)
         set vcs_branch (git_branch_name)
