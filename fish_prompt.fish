@@ -1,6 +1,7 @@
 function fish_prompt
     set last_status $status
     set color_white (set_color white)
+    set color_yellow (set_color yellow)
     set color_command (set_color $fish_color_command)
     set color_error (set_color $fish_color_error)
     set color_normal (set_color $fish_color_normal)
@@ -11,14 +12,13 @@ function fish_prompt
         set prompt_char '!'
     end
 
-    if which git > /dev/null 2>&1 && git_is_repo && not test -d (git_repository_root)/.git/annex
+    if which git &> /dev/null 2>&1 \
+        && git rev-parse --git-dir &> /dev/null
         set vcs git
-        set vcs_root (git_repository_root)
-        set vcs_branch (git_branch_name)
+        set vcs_root (git rev-parse --show-toplevel)
     else if which hg > /dev/null 2>&1 && test -d .hg
         set vcs hg
         set vcs_root (hg root)
-        set vcs_branch (hg branch)
     end
 
     if set -q vcs
@@ -39,20 +39,14 @@ function fish_prompt
         set color_glyph $color_normal
 
         if test $vcs = 'git'
-            if git_is_dirty
+            if not git diff --no-ext-diff --quiet --exit-code &> /dev/null
                 set color_glyph $color_error
-            else if git_is_staged
-                set color_glyph (set_color green)
+            else if not git diff --cached --no-ext-diff --quiet --exit-code &> /dev/null
+                set color_glyph $color_green
             end
-
-            set ahead (git_ahead ' +' ' -' ' ±')
         end
 
-        set vcs_branch ' ('(set_color yellow)"$vcs_branch$color_normal)"
-
-        set glyph "$vcs_branch$color_glyph $prompt_char$ahead"
-
-        # TODO could add more git info
+        set glyph " $color_glyph$prompt_char$color_normal"
     end
 
     if test (id -u $USER) = 0
@@ -107,5 +101,7 @@ function fish_prompt
         set host '['(hostname -s)'] '
     end
 
-    printf " $color_normal$host$root$color_normal$prompt$color_normal$glyph $color_normal"
+    set git (fish_git_prompt | sed "s/(/($color_yellow/;s/)/$color_normal)/")
+
+    printf " $color_normal$host$root$color_normal$prompt$color_normal$git$glyph "
 end
