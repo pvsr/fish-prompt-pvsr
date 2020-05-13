@@ -3,7 +3,7 @@ function fish_prompt
     set color_white (set_color white)
     set color_yellow (set_color yellow)
     set color_command (set_color $fish_color_command)
-    set color_error (set_color $fish_color_error)
+    set color_red (set_color red)
     set color_normal (set_color $fish_color_normal)
     set color_vcs_basename (set_color cyan)
     set prompt_char '$'
@@ -40,7 +40,7 @@ function fish_prompt
 
         if test $vcs = 'git'
             if not git diff --no-ext-diff --quiet --exit-code &> /dev/null
-                set color_glyph $color_error
+                set color_glyph $color_red
             else if not git diff --cached --no-ext-diff --quiet --exit-code &> /dev/null
                 set color_glyph $color_green
             end
