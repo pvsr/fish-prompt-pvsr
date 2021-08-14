@@ -2,7 +2,7 @@
 
 My custom fish prompt.
 Originally forked from gabtemp/mono,
-but I've basically rewritten it entirely at this point.
+but I removed most of the features because it wasn't \~minimal\~ enough for me.
 
 ![preview](https://user-images.githubusercontent.com/12705140/51782656-f328e580-20f9-11e9-86f0-82c3c1210148.png)
 
