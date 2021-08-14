@@ -22,19 +22,15 @@ function fish_prompt
     end
 
     if set -q vcs
-        if not string match --entire $vcs_root $PWD > /dev/null
-            # we need to reconcile the virtual PWD, which reflects symlinks, with the actual path
-            set -l suffix (string replace --regex $vcs_root '' (realpath $PWD))
-            set vcs_root (string replace --regex "(.*)$suffix\$" '$1' $PWD)
+        if string match --entire $vcs_root $PWD > /dev/null
+            set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
+            if test $vcs_root != ~
+                set vcs_root_abbr (string replace ~ \~ $vcs_root)
+            else
+                set vcs_root_abbr $vcs_root
+            end
+            set vcs_basename_idx (count (string split / $vcs_root_abbr))
         end
-
-        set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
-        if test $vcs_root != ~
-            set vcs_root_abbr (string replace ~ \~ $vcs_root)
-        else
-            set vcs_root_abbr $vcs_root
-        end
-        set vcs_basename_idx (count (string split / $vcs_root_abbr))
 
         set color_glyph $color_normal
 
