@@ -16,18 +16,13 @@ function fish_prompt
         && git rev-parse --git-dir &> /dev/null
         set vcs git
         set vcs_root (git rev-parse --show-toplevel)
-    else if which hg > /dev/null 2>&1 && test -d .hg
+    else if which hg > /dev/null 2>&1 && test -d .hg # FIXME only works at top level
         set vcs hg
         set vcs_root (hg root)
     end
 
     if set -q vcs
-        if not string match --entire $vcs_root $PWD > /dev/null
-            # we need to reconcile the virtual PWD, which reflects symlinks, with the actual path
-            set -l suffix (string replace --regex $vcs_root '' (realpath $PWD))
-            set vcs_root (string replace --regex "(.*)$suffix\$" '$1' $PWD)
-        end
-
+        set vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
         set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
         if test $vcs_root != ~
             set vcs_root_abbr (string replace ~ \~ $vcs_root)
