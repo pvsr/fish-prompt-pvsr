@@ -12,10 +12,8 @@ function fish_prompt
         set prompt_char '!'
     end
 
-    if which git &> /dev/null 2>&1 \
-        && git rev-parse --git-dir &> /dev/null
+    if type -q git && set vcs_root (git rev-parse --show-toplevel 2> /dev/null)
         set vcs git
-        set vcs_root (git rev-parse --show-toplevel)
     else if which hg > /dev/null 2>&1 && test -d .hg # FIXME only works at top level
         set vcs hg
         set vcs_root (hg root)
@@ -87,7 +85,7 @@ function fish_prompt
         end
 
         set prompt (string join / $paths)
-        if set -q vcs_root && test $vcs_root = "/"
+        if test "$vcs_root" = "/"
             set prompt (string replace --regex '^/' "$color_vcs_basename/$color_normal" $prompt)
         end
     end
