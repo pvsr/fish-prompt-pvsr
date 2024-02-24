@@ -46,7 +46,7 @@ function fish_prompt
         set root (set_color red)
     end
 
-    set pwd (string replace ~ \~ $PWD)
+    set pwd (string replace -r ^$HOME \~ $PWD)
     if test $PWD = ~
         test $last_status = 0 && set prompt_char "~"
         if set -q vcs_basename
