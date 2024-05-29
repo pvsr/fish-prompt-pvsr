@@ -23,7 +23,7 @@ function fish_prompt
         set vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
         set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
         if test $vcs_root != ~
-            set vcs_root_abbr (string replace ~ \~ $vcs_root)
+            set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
         else
             set vcs_root_abbr $vcs_root
         end
