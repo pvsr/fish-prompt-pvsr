@@ -94,7 +94,7 @@ function fish_prompt
         set host '['(hostname -s)'] '
     end
 
-    set git (fish_git_prompt | string replace -r "\((.*)\)" "($color_yellow\$1$color_normal)")
+    set vcs (fish_vcs_prompt)
 
-    printf " $color_normal$host$root$color_normal$prompt$color_normal$git$glyph "
+    printf " $color_normal$host$root$color_normal$prompt$color_normal$vcs$glyph "
 end
