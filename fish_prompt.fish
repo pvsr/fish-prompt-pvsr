@@ -12,6 +12,8 @@ function fish_prompt
         set prompt_char '!'
     end
 
+    set glyph " $prompt_char"
+
     if type -q git && set vcs_root (git rev-parse --show-toplevel 2> /dev/null)
         set vcs git
     else if which hg >/dev/null 2>&1 && test -d .hg # FIXME only works at top level
@@ -28,18 +30,6 @@ function fish_prompt
             set vcs_root_abbr $vcs_root
         end
         set vcs_basename_idx (count (string split / $vcs_root_abbr))
-
-        set color_glyph $color_normal
-
-        if test $vcs = git
-            if not git diff --no-ext-diff --quiet --exit-code &>/dev/null
-                set color_glyph $color_red
-            else if not git diff --cached --no-ext-diff --quiet --exit-code &>/dev/null
-                set color_glyph $color_green
-            end
-        end
-
-        set glyph " $color_glyph$prompt_char$color_normal"
     end
 
     if test (id -u $USER) = 0
@@ -65,9 +55,6 @@ function fish_prompt
     end
 
     if not set -q prompt
-        if not set -q glyph
-            set glyph " $prompt_char"
-        end
         set paths (string split / $pwd | string replace --regex '^(\.?.).*$' '$1')
 
         set color_init $color_command
