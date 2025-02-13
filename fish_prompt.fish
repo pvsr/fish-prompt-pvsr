@@ -81,6 +81,7 @@ function fish_prompt
     end
 
     set vcs (fish_vcs_prompt)
+    and set glyph $color_normal
 
     printf " $color_normal$host$root$color_normal$prompt$color_normal$vcs$glyph "
 end
