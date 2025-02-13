@@ -12,8 +12,6 @@ function fish_prompt
         set prompt_char '!'
     end
 
-    set glyph " $prompt_char"
-
     if type -q git && set vcs_root (git rev-parse --show-toplevel 2> /dev/null)
         set vcs git
     else if which hg >/dev/null 2>&1 && test -d .hg # FIXME only works at top level
@@ -55,6 +53,7 @@ function fish_prompt
     end
 
     if not set -q prompt
+        set glyph " $prompt_char"
         set paths (string split / $pwd | string replace --regex '^(\.?.).*$' '$1')
 
         set color_init $color_command
