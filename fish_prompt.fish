@@ -1,11 +1,10 @@
 function fish_prompt
     set last_status $status
     set color_white (set_color white)
-    set color_yellow (set_color yellow)
-    set color_command (set_color $fish_color_command)
-    set color_red (set_color red)
-    set color_normal (set_color $fish_color_normal)
-    set color_vcs_basename (set_color cyan)
+    set color_normal (set_color normal)
+    set color_path (set_color normal)
+    set color_path_basename (set_color white -o)
+    set color_path_highlight (set_color cyan)
     set prompt_char '$'
 
     if test $last_status != 0
@@ -21,7 +20,7 @@ function fish_prompt
 
     if set -q vcs
         set vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
-        set vcs_basename $color_normal$color_vcs_basename(basename $vcs_root)$color_normal
+        set vcs_basename $color_path_highlight(basename $vcs_root)$color_normal$color_path
         if test $vcs_root != ~
             set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
         else
@@ -40,39 +39,26 @@ function fish_prompt
         if set -q vcs_basename
             set pwd $PWD
         else
-            set prompt "$color_command$prompt_char"
+            set prompt "$color_path_highlight$prompt_char"
         end
     else if test $PWD = /
         test $last_status = 0 && set prompt_char /
-
-        set prompt "$color_command$prompt_char"
-
-        if set -q vcs_basename
-            set prompt $color_vcs_basename$prompt
-        end
+        set prompt "$color_path_highlight$prompt_char"
     end
 
     if not set -q prompt
         set glyph " $prompt_char"
         set paths (string split / $pwd | string replace --regex '^(\.?.).*$' '$1')
 
-        set color_init $color_command
+        set paths[-1] $color_path_basename(basename (pwd))
 
-        if set -q vcs_basename_idx
-            if test $vcs_basename_idx != 0
-                set paths[$vcs_basename_idx] $vcs_basename
-            end
-
-            if test $vcs_basename_idx != (count $paths)
-                set paths[-1] $color_normal$color_white(basename (pwd))
-            end
-        else
-            set paths[-1] $color_normal$color_white(basename (pwd))
+        if set -q vcs_basename_idx; and test $vcs_basename_idx != 0
+            set paths[$vcs_basename_idx] $vcs_basename
         end
 
-        set prompt (string join / $paths)
+        set prompt $color_path(string join / $paths)
         if test "$vcs_root" = /
-            set prompt (string replace --regex '^/' "$color_vcs_basename/$color_normal" $prompt)
+            set prompt (string replace --regex '^/' "$color_path_highlight/$color_normal" $prompt)
         end
     end
 
