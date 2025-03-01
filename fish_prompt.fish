@@ -19,6 +19,9 @@ function fish_prompt
     end
 
     if set -q vcs
+        set color_path (set_color brgreen)
+        set color_path_basename (set_color brgreen -o)
+        set color_path_highlight (set_color brmagenta -o)
         set vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
         set vcs_basename $color_path_highlight(basename $vcs_root)$color_normal$color_path
         if test $vcs_root = ~
