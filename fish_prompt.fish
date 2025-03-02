@@ -22,16 +22,19 @@ function fish_prompt
         set color_path (set_color brgreen)
         set color_path_basename (set_color brgreen -o)
         set color_path_highlight (set_color brmagenta -o)
-        set vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
-        set vcs_basename $color_path_highlight(basename $vcs_root)$color_normal$color_path
-        if test $vcs_root = ~
-            set vcs_root_abbr $vcs_root
-        else if test $vcs_root = /
-            set vcs_root_abbr ''
-        else
-            set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
+        set relative_vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
+        if test (realpath $relative_vcs_root) = $vcs_root
+            set vcs_root $relative_vcs_root
+            set vcs_basename $color_path_highlight(basename $vcs_root)$color_normal$color_path
+            if test $vcs_root = ~
+                set vcs_root_abbr $vcs_root
+            else if test $vcs_root = /
+                set vcs_root_abbr ''
+            else
+                set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
+            end
+            set vcs_basename_idx (count (string split / $vcs_root_abbr))
         end
-        set vcs_basename_idx (count (string split / $vcs_root_abbr))
     end
 
     if test (id -u $USER) = 0
