@@ -3,7 +3,7 @@ function fish_prompt
     set color_white (set_color white)
     set color_normal (set_color normal)
     set color_path (set_color normal)
-    set color_path_basename (set_color white -o)
+    set color_path_basename (set_color white)
     set color_path_highlight (set_color cyan)
     set prompt_char '$'
 
