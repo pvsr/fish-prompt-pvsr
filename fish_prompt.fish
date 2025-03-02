@@ -21,10 +21,12 @@ function fish_prompt
     if set -q vcs
         set vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
         set vcs_basename $color_path_highlight(basename $vcs_root)$color_normal$color_path
-        if test $vcs_root != ~
-            set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
-        else
+        if test $vcs_root = ~
             set vcs_root_abbr $vcs_root
+        else if test $vcs_root = /
+            set vcs_root_abbr ''
+        else
+            set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
         end
         set vcs_basename_idx (count (string split / $vcs_root_abbr))
     end
@@ -56,12 +58,12 @@ function fish_prompt
             set paths[$vcs_basename_idx] $vcs_basename
         end
 
-        set prompt $color_path(string join / $paths)
         if test "$vcs_root" = /
-            set prompt (string replace --regex '^/' "$color_path_highlight/$color_normal" $prompt)
+            set prompt "$color_path_highlight/$color_path"(string join / $paths[2..-1])
+        else
+            set prompt $color_path(string join / $paths)
         end
     end
-
     if set -q SSH_CLIENT
         set host '['(hostname -s)'] '
     end
