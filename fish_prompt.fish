@@ -1,6 +1,5 @@
 function fish_prompt
     set last_status $status
-    set color_white (set_color white)
     set color_normal (set_color normal)
     set color_path (set_color normal)
     set color_path_basename (set_color white)
@@ -19,9 +18,9 @@ function fish_prompt
     end
 
     if set -q vcs
-        set color_path (set_color brgreen)
-        set color_path_basename (set_color brgreen -o)
-        set color_path_highlight (set_color brmagenta -o)
+        set color_path (set_color (string replace -r '(-o|--bold)' '' -- "$fish_color_command" | string trim))
+        set color_path_basename (set_color $fish_color_command -o)
+        set color_path_highlight (set_color $fish_color_param -o)
         set relative_vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $vcs_root))
         if test (realpath $relative_vcs_root) = $vcs_root
             set vcs_root $relative_vcs_root
