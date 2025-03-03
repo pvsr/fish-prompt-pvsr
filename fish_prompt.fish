@@ -11,7 +11,7 @@ function fish_prompt
     end
 
     type -q git
-    and set real_vcs_root (git rev-parse --show-toplevel 2> /dev/null)
+    and set real_vcs_root (git --no-optional-locks rev-parse --show-toplevel 2>/dev/null)
     and begin
         set color_path (set_color (string replace -r '(-o|--bold)' '' -- "$fish_color_command" | string trim))
         set color_path_basename (set_color $fish_color_command -o)
