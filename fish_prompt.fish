@@ -38,7 +38,7 @@ function fish_prompt
     end
 
     if test (id -u $USER) = 0
-        set root (set_color red)
+        set root (set_color $fish_color_error)'# '
     end
 
     set pwd (string replace -r ^$HOME \~ $PWD)
