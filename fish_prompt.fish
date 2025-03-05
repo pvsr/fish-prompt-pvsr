@@ -84,7 +84,8 @@ function fish_prompt
         set host '['(hostname -s)'] '
     end
 
-    set vcs (fish_vcs_prompt)
+    set -q vcs_root
+    and set vcs (fish_vcs_prompt)
     and set glyph $color_normal
 
     printf " $color_normal$host$root$color_normal$prompt$color_normal$vcs$glyph "
