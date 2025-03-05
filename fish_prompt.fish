@@ -10,14 +10,9 @@ function fish_prompt
         set prompt_char '!'
     end
 
-    if type -q git && set real_vcs_root (git rev-parse --show-toplevel 2> /dev/null)
-        set vcs git
-    else if which hg >/dev/null 2>&1 && test -d .hg # FIXME only works at top level
-        set vcs hg
-        set real_vcs_root (hg root)
-    end
-
-    if set -q vcs
+    type -q git
+    and set real_vcs_root (git rev-parse --show-toplevel 2> /dev/null)
+    and begin
         set color_path (set_color (string replace -r '(-o|--bold)' '' -- "$fish_color_command" | string trim))
         set color_path_basename (set_color $fish_color_command -o)
         set color_path_highlight (set_color $fish_color_param -o)
