@@ -16,15 +16,15 @@ function fish_prompt
         set color_path (set_color (string replace -r '(-o|--bold)' '' -- "$fish_color_command" | string trim))
         set color_path_basename (set_color $fish_color_command -o)
         set color_path_highlight (set_color $fish_color_param -o)
-        set relative_vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) $real_vcs_root))
-        if test (realpath $relative_vcs_root) = $real_vcs_root
+        set relative_vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) "$real_vcs_root"))
+        if test (realpath $relative_vcs_root) = "$real_vcs_root"
             set vcs_root $relative_vcs_root
         end
         while not set -q vcs_root
             set -q logical_parent
             or set logical_parent (dirname $PWD)
             set real_sym_parent (realpath $logical_parent)
-            if test $real_sym_parent = $real_vcs_root
+            if test $real_sym_parent = "$real_vcs_root"
                 set vcs_root $real_sym_parent
             else if not string match -q "$real_vcs_root*" $real_sym_parent
                 break
