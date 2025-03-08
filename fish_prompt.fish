@@ -30,33 +30,14 @@ function fish_prompt
                 break
             else if test logical_parent = /
                 break
-            else
-                set logical_parent (dirname $logical_parent)
             end
-        end
-        if set -q vcs_root
-            set vcs_basename $color_path_highlight(basename $vcs_root)$color_normal$color_path
-            if test $vcs_root = ~
-                set vcs_root_abbr $vcs_root
-            else if test $vcs_root = /
-                set vcs_root_abbr ''
-            else
-                set vcs_root_abbr (string replace -r ^$HOME \~ $vcs_root)
-            end
-            set vcs_basename_idx (count (string split / $vcs_root_abbr))
+            set logical_parent (dirname $logical_parent)
         end
     end
 
-    if test (id -u $USER) = 0
-        set root (set_color $fish_color_error)'# '
-    end
-
-    set pwd (string replace -r ^$HOME \~ $PWD)
     if test $PWD = ~
         test $last_status = 0 && set prompt_char "~"
-        if set -q vcs_basename
-            set pwd $PWD
-        else
+        if not set -q vcs_root
             set prompt "$color_path_highlight$prompt_char"
         end
     else if test $PWD = /
@@ -66,22 +47,33 @@ function fish_prompt
 
     if not set -q prompt
         set glyph " $prompt_char"
-        set paths (string split / $pwd | string replace --regex '^(\.?.).*$' '$1')
+        set full_paths (string split / $PWD)
+        set paths (string replace -r '^(\.?.).*$' '$1' $full_paths)
 
-        set paths[-1] $color_path_basename(basename (pwd))
-
-        if set -q vcs_basename_idx; and test $vcs_basename_idx != 0
-            set paths[$vcs_basename_idx] $vcs_basename
-        end
+        set paths[-1] $color_path_basename$full_paths[-1]
 
         if test "$real_vcs_root" = /
-            set prompt "$color_path_highlight/$color_path"(string join / $paths[2..-1])
-        else
-            set prompt $color_path(string join / $paths)
+            set prefix "$color_path_highlight/$color_normal"
+            set paths $paths[2..-1]
+        else if test "$real_vcs_root" = ~
+            set prefix "$color_path_highlight~$color_normal"
+            set skip (math 1 + (count (string split / ~)))
+            set paths '' $paths[$skip..-1]
+        else if set -q vcs_root
+            set vcs_root_idx (count (string split / $vcs_root))
+            set vcs_basename $color_path_highlight$full_paths[$vcs_root_idx]$color_normal$color_path
+            set paths[$vcs_root_idx] $vcs_basename
         end
+        set short_home (string replace -ar '(\.?[^/])[^/]*' '$1' $HOME)
+        set prompt "$prefix$color_path"(string join / $paths | string replace -r ^$short_home \~)
     end
+
     if set -q SSH_CLIENT
         set host '['(hostname -s)'] '
+    end
+
+    if test (id -u $USER) = 0
+        set root (set_color $fish_color_error)'# '
     end
 
     set -q vcs_root
