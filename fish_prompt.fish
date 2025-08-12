@@ -48,7 +48,7 @@ function fish_prompt
     if not set -q prompt
         set glyph " $prompt_char"
         set full_paths (string split / $PWD)
-        set paths (string replace -r '^(\.?.).*$' '$1' $full_paths)
+        set paths (string replace -ra '(?<=[^_\-\.])[^_\-\.]' '' $full_paths)
 
         set paths[-1] $color_path_basename$full_paths[-1]
 
