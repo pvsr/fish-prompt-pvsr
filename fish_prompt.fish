@@ -10,8 +10,12 @@ function fish_prompt
         set prompt_char '!'
     end
 
-    type -q git
-    and set real_vcs_root (git --no-optional-locks rev-parse --show-toplevel 2>/dev/null; or jj root 2>/dev/null)
+    type -q jj
+    and set real_vcs_root (jj root 2>/dev/null)
+    or begin
+        type -q git
+        and set real_vcs_root (git --no-optional-locks rev-parse --show-toplevel 2>/dev/null)
+    end
     and begin
         set color_path (set_color (string replace -r '(-o|--bold)' '' -- "$fish_color_command" | string trim))
         set color_path_basename (set_color $fish_color_command -o)
