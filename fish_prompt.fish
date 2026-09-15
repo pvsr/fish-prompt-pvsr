@@ -17,7 +17,7 @@ function fish_prompt
         and set real_vcs_root (git --no-optional-locks rev-parse --show-toplevel 2>/dev/null)
     end
     and begin
-        set color_path (set_color (string replace -r '(-o|--bold)' '' -- "$fish_color_command" | string trim))
+        set color_path (set_color (string match -vr '(-o|--bold)' -- $fish_color_command))
         set color_path_basename (set_color $fish_color_command -o)
         set color_path_highlight (set_color $fish_color_param -o)
         set relative_vcs_root (path normalize "$PWD/"(realpath --relative-to=(pwd -P) "$real_vcs_root"))
